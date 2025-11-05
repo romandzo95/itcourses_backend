@@ -13,6 +13,22 @@ class BaseRepository:
     def create(self, **kwargs):
         return self.model.objects.create(**kwargs)
     
+    def delete(self, id):
+        instance = self.get_by_id(id)
+        if instance:
+            instance.delete()
+            return instance
+        else:
+            return None
+        
+    def update(self, id, **kwargs):
+        instance = self.get_by_id(id)
+        if instance:
+            for k, v in kwargs.items():
+                setattr(instance, k ,v)
+            instance.save()
+        return instance    
+    
 
 class StudentRepository(BaseRepository):
     def __init__(self):

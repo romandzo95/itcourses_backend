@@ -32,3 +32,8 @@ course1 = allR.courses
 print(course1.get_all())
 
 
+new_course = course1.create(course_name = "Python", description="python basics", duration=4, price=15)
+print("New course:", new_course)
+
+print(course1.get_all())
+

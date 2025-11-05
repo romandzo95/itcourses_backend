@@ -20,6 +20,3 @@ class allRepos:
         self.payments = PaymentRepository()
         self.certificates = CertificateRepository()
 
-
-allR = allRepos()
-students = allR.students.get_all()
