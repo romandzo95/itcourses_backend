@@ -6,7 +6,8 @@ from .views import (
     EnrollmentListCreateView, EnrollmentDetailView,
     ScheduleListCreateView, ScheduleDetailView,
     PaymentListCreateView, PaymentDetailView,
-    CertificateListCreateView, CertificateDetailView
+    CertificateListCreateView, CertificateDetailView,
+    ReportView
 )
 from django.urls import path, include
 
@@ -27,4 +28,5 @@ urlpatterns = [
     path('payments/<int:pk>/', PaymentDetailView.as_view(), name='payment-detail'),
     path('certificates/', CertificateListCreateView.as_view(), name='certificate-list'),
     path('certificates/<int:pk>/', CertificateDetailView.as_view(), name='certificate-detail'),
+    path('report/', ReportView.as_view(), name='report'),
 ]

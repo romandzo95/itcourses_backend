@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from .allRepos import allRepos
 from rest_framework import status
 from rest_framework.views import APIView
+from django.db.models import Count, Avg
 # Create your views here.
 
 repos = allRepos()
@@ -355,3 +356,18 @@ class CertificateDetailView(APIView):
         if certificate:
             return Response({"message": "Certificate deleted"})
         return Response({"error": "Certificate not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+
+
+class ReportView(APIView):
+    def get(self, request):
+        data = {
+            "total_students": Student.objects.count(),
+            "total_courses": Course.objects.count(),
+            "total_enrollments": Enrollment.objects.count(),
+            "average_course_price": Course.objects.aggregate(Avg("price"))["price__avg"],
+            "payments_by_method": list(
+                Payment.objects.values("method").annotate(total=Count("method"))
+            ),
+        }
+        return Response(data, status=status.HTTP_200_OK)
