@@ -1,0 +1,15 @@
+<h1>Enrollments</h1>
+
+<a href="{% url 'enrollment_create' %}">Add new enrollment</a>
+
+<ul>
+    {% for e in enrollments %}
+    <li>
+        <a href="{% url 'enrollment_detail' e.pk %}">
+            {{ e.student.first_name }} {{ e.student.last_name }} - {{ e.course.course_name }}
+        </a>
+    </li>
+    {% empty %}
+    <li>No enrollments yet.</li>
+    {% endfor %}
+</ul>

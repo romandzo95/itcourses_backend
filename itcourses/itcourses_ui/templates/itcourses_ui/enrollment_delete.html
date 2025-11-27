@@ -1,0 +1,10 @@
+<h1>Delete enrollment</h1>
+
+<p>Are you sure you want to delete the enrollment?</p>
+
+<form method="post">
+    {% csrf_token %}
+    <button type="submit">Yes, delete</button>
+</form>
+
+<a href="{% url 'enrollment_detail' enrollment.pk %}">Cancel</a>

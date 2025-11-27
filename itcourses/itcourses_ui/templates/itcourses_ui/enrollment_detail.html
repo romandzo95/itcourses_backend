@@ -1,0 +1,8 @@
+<h1>Enrollment</h1>
+
+<p><strong>Student:</strong> {{ enrollment.student.first_name }} {{ enrollment.student.last_name }}</p>
+<p><strong>Course:</strong> {{ enrollment.course.course_name }}</p>
+
+<a href="{% url 'enrollment_update' enrollment.pk %}">Edit</a> |
+<a href="{% url 'enrollment_delete' enrollment.pk %}">Delete</a> |
+<a href="{% url 'enrollment_list' %}">Back to list</a>

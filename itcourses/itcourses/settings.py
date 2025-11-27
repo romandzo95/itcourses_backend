@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'itcourses_app',
+    'itcourses_ui',
     'rest_framework',
 ]
 
