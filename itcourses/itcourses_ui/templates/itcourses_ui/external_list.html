@@ -1,0 +1,22 @@
+<h1>Outer data API</h1>
+
+{% if not items %}
+<p>No data or bad connection.</p>
+{% else %}
+<ul>
+    {% for item in items %}
+    <li>
+        <strong>ID: {{ item.author_id }}</strong> -
+        {{ item.first_name }} {{ item.last_name }}
+
+        <form action="{% url 'external_author_delete' item.author_id %}" method="post"
+            style="display:inline; margin-left: 10px;">
+            {% csrf_token %}
+            <button type="submit" style="color: red;">Delete X</button>
+        </form>
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+<a href="{% url 'enrollment_list' %}">Return to a local app</a>
