@@ -43,11 +43,20 @@ def enrollment_delete(request, pk):
     return render(request, "itcourses_ui/enrollment_delete.html", {"enrollment": enrollment})
 
 
-def external_list(request):
+def external_author_list(request):
     status, data = api.get_list("authors")
-    return render(request, "itcourses_ui/external_list.html", {"items": data})
+    return render(request, "itcourses_ui/external_author_list.html", {"items": data})
 
 def external_author_delete(request, pk):
     if request.method == "POST":
         api.delete_item("authors", pk)
-        return redirect("external_list")
+        return redirect("external_author_list")
+    
+def external_book_list(request):
+    status, data = api.get_list("books")
+    return render(request, "itcourses_ui/external_book_list.html", {"items": data})
+
+def external_book_delete(request, pk):
+    if request.method == "POST":
+        api.delete_item("books", pk)
+        return redirect("external_book_list")
