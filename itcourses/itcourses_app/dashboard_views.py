@@ -147,7 +147,7 @@ class BokehDashboardView(View):
 
         plots = {}
 
-        ########### 1 ###########
+        # =========== 1 ==============
         qs_enrollments = (
             Student.objects
             .annotate(total_courses=Count("enrollment"))
@@ -173,7 +173,7 @@ class BokehDashboardView(View):
             plots['chart1'] = p1
 
         
-
+        # =========== 2 =============
 
         qs_grades = (
             Student.objects
@@ -208,6 +208,7 @@ class BokehDashboardView(View):
             p2 = figure(title="No Data")
             plots['chart2'] = p2
 
+        # =========== 3 =============
 
         qs_profit = (
             Course.objects
@@ -238,6 +239,7 @@ class BokehDashboardView(View):
             p3 = figure(title="No Data for Profits")
             plots['chart3'] = p3
 
+        # =========== 4 =============
 
         qs_classrooms = (
             Classroom.objects
@@ -261,7 +263,7 @@ class BokehDashboardView(View):
             plots['chart4'] = p4
 
 
-        # =========== 5. Donut Chart: Payment Methods (Кільцева) =============
+        # =========== 5 =============
         qs_payments = (
             Payment.objects
             .values("method")
@@ -291,7 +293,7 @@ class BokehDashboardView(View):
             plots['chart5'] = p5
 
 
-        # =========== 6. Line Chart: Monthly Profit (Лінійний) =============
+        # =========== 6 =============
         qs_income = (
             Enrollment.objects
             .annotate(month=ExtractMonth("enrollment_date"), course_price=F("course__price"))
