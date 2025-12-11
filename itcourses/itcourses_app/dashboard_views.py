@@ -147,7 +147,7 @@ class BokehDashboardView(View):
 
         plots = {}
 
-        # =========== 1 =============
+        # =========== 1 ==============
         qs_enrollments = (
             Student.objects
             .annotate(total_courses=Count("enrollment"))
