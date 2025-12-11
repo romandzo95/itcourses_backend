@@ -320,7 +320,6 @@ class BokehDashboardView(View):
         script, divs = components(plots)
 
         js_resourses = CDN.render()
-        # Збираємо контекст
         context = {
             'script': script,
             'divs':divs,
