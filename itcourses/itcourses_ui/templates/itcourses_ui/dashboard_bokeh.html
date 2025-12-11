@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Bokeh Dashboard</title>
+    {{ resources | safe }}
+
+    <style>
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .chart-box {
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Bokeh Dashboard</h1>
+
+    <form method="get" style="margin: 20px;">
+        <label>Min Courses: <input type="number" name="min_courses" value="{{ min_courses }}"></label>
+        <label>Min Grade: <input type="number" step="0.1" name="min_grade" value="{{ min_grade }}"></label>
+        <button type="submit">Filter</button>
+    </form>
+
+    <div class="charts-container">
+        <div class="chart-box">{{ divs.chart1 | safe }}</div>
+        <div class="chart-box">{{ divs.chart2 | safe }}</div>
+        <div class="chart-box">{{ divs.chart3 | safe }}</div>
+        <div class="chart-box">{{ divs.chart4 | safe }}</div>
+        <div class="chart-box">{{ divs.chart5 | safe }}</div>
+        <div class="chart-box">{{ divs.chart6 | safe }}</div>
+    </div>
+
+    {{ script | safe }}
+</body>
+
+</html>

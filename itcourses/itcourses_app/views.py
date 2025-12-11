@@ -4,7 +4,15 @@ from rest_framework.response import Response
 from .allRepos import allRepos
 from rest_framework import status
 from rest_framework.views import APIView
-from django.db.models import Count, Avg
+from django.db.models import Count, Avg, Sum, F
+from django.db.models.functions import ExtractMonth
+from django.views import View
+import pandas as pd
+
+import plotly.io as pio
+import plotly.express as px
+from django.shortcuts import render
+from bokeh.plotting import figure, show
 # Create your views here.
 
 repos = allRepos()
@@ -371,3 +379,140 @@ class ReportView(APIView):
             ),
         }
         return Response(data, status=status.HTTP_200_OK)
+    
+
+
+class StudentEnrollments(APIView):
+    def get(self, request):
+        qs = (
+            Student.objects
+            .annotate(total_courses=Count("enrollment"))
+            .filter(total_courses__gte=1)
+            .order_by("-total_courses")
+            .values("first_name", "last_name", "total_courses")
+        )
+
+        df = pd.DataFrame(list(qs))
+        return Response(df.to_dict(orient="records"))
+    
+class StudentAvgGrade(APIView):
+    def get(self, request):
+        qs = (
+            Student.objects
+            .annotate(avg_grade=Avg("certificate__grade"))
+            .filter(avg_grade__gt=6.0)
+            .order_by("-avg_grade")
+            .values("first_name", "last_name", "avg_grade")
+        )
+
+        df = pd.DataFrame(list(qs))
+        return Response(df.to_dict(orient="records"))
+    
+class CourseProfit(APIView):
+    def get(self, request):
+        qs = (
+            Course.objects
+            .annotate(total_students=Count("enrollment"))
+            .annotate(total_income=F("total_students") * F("price"))
+            .order_by("-total_income")
+            .values("course_name", "total_students", "total_income")
+        )
+
+        df = pd.DataFrame(list(qs))
+        return Response(df.to_dict(orient="records"))
+    
+
+class ClassroomAvailability(APIView):
+    def get(self, request):
+        qs = (
+            Classroom.objects
+            .annotate(lessons_count=Count("schedule"))
+            .order_by("-lessons_count")
+            .values("room_number", "room_capacity", "lessons_count")
+        )
+
+        df = pd.DataFrame(list(qs))
+        return Response(df.to_dict(orient="records"))
+    
+class PaymentbyPayMethods(APIView):
+    def get(self, request):
+        qs = (
+            Payment.objects
+            .values("method")
+            .annotate(total=Count("payment_id"))
+            .filter(total__gte=2)
+            .order_by("-total")
+        )
+
+        df = pd.DataFrame(list(qs))
+        return Response(df.to_dict(orient="records"))
+    
+class CoursesForTeacher(APIView):
+    def get(self, request):
+        qs = (
+            Teacher.objects
+            .annotate(lesson_count=Count("schedule"))
+            .filter(specialization__isnull=False)
+            .order_by("-lesson_count")
+            .values("first_name", "last_name", "specialization", "lesson_count")
+        )
+
+        df = pd.DataFrame(list(qs))
+        return Response(df.to_dict(orient="records"))
+    
+
+class CoursePriceStats(APIView):
+    def get(self, request):
+        qs = Course.objects.all().values("course_id","course_name", "price")
+
+        df = pd.DataFrame(list(qs))
+
+        stats = {
+            "mean_price": df["price"].mean(),
+            "median_price": df["price"].median(),
+            "min_price": df["price"].min(),
+            "max_price": df["price"].max()
+        }
+        return Response(stats)
+    
+class MonthlyIncome(APIView):
+    def get(self, request):
+        qs = (
+            Enrollment.objects
+            .annotate(
+                month = ExtractMonth("enrollment_date"),
+                course_price = F("course__price")
+            )
+            .values("month", "course_price")
+        )
+
+        df = pd.DataFrame(qs)
+
+        grouped = (
+            df.groupby("month")["course_price"]
+            .sum()
+            .reset_index(name="monthly_income")
+        )
+
+        return Response(grouped.to_dict(orient="records"))
+    
+class AvgGradeByCourse(APIView):
+    def get(self, request):
+        qs = (
+            Certificate.objects
+            .annotate(course_name=F("student__enrollment__course__course_name"))
+            .values("course_name", "grade")
+        )
+
+        df = pd.DataFrame(list(qs)).dropna()
+
+        grouped = (
+            df.groupby("course_name")["grade"]
+            .mean()
+            .reset_index(name="avg_grade")
+        )
+
+        return Response(grouped.to_dict(orient="records"))
+    
+
+
