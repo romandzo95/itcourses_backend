@@ -7,8 +7,12 @@ from .views import (
     ScheduleListCreateView, ScheduleDetailView,
     PaymentListCreateView, PaymentDetailView,
     CertificateListCreateView, CertificateDetailView,
-    ReportView
+    ReportView, StudentAvgGrade, StudentEnrollments, 
+    CoursesForTeacher, PaymentbyPayMethods, 
+    ClassroomAvailability, CourseProfit,
+    CoursePriceStats, MonthlyIncome, AvgGradeByCourse,
 )
+from .dashboard_views import PlotlyDashboardView, BokehDashboardView
 from django.urls import path, include
 
 urlpatterns = [
@@ -29,4 +33,15 @@ urlpatterns = [
     path('certificates/', CertificateListCreateView.as_view(), name='certificate-list'),
     path('certificates/<int:pk>/', CertificateDetailView.as_view(), name='certificate-detail'),
     path('report/', ReportView.as_view(), name='report'),
+    path('analytics/students/courses/', StudentEnrollments.as_view()),
+    path('analytics/students/grades/', StudentAvgGrade.as_view()),
+    path('analytics/courses/income/', CourseProfit.as_view()),
+    path('analytics/classrooms/load/', ClassroomAvailability.as_view()),
+    path('analytics/payments/methods/', PaymentbyPayMethods.as_view()),
+    path('analytics/teachers/load/', CoursesForTeacher.as_view()),
+    path('analytics/course/price-stats/', CoursePriceStats.as_view()),
+    path('analytics/income/monthly/', MonthlyIncome.as_view()),
+    path('analytics/course/avg-grade/', AvgGradeByCourse.as_view()),
+    path('dashboard/plotly/', PlotlyDashboardView.as_view(), name="dashboard-plotly"),
+    path('dashboard/bokeh/', BokehDashboardView.as_view(), name='dashboard-bokeh'),
 ]

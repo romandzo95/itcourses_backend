@@ -1,7 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from itcourses_app.models import Enrollment
+from itcourses_app.models import Enrollment, Student
 from .forms import EnrollmentForm
 from itcourses_app.management.NetworkHelper import NetworkHelper
+import pandas as pd
 # Create your views here.
 
 api = NetworkHelper(base_url="http://127.0.0.1:8002/", username = "romandzo95", password = "library123")
@@ -60,3 +61,18 @@ def external_book_delete(request, pk):
     if request.method == "POST":
         api.delete_item("books", pk)
         return redirect("external_book_list")
+    
+def main_view(request):
+    qs = Student.objects.all().values()
+    qs2 = Enrollment.objects.all().values()
+    data = pd.DataFrame(qs)
+    print(data)
+    data2 = pd.DataFrame(qs2)
+    print(data2)
+
+
+    context = {
+        'df': data.to_html()
+    }
+
+    return render(request, "itcourses_ui/main.html", context)
