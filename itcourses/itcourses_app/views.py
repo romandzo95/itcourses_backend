@@ -13,6 +13,8 @@ import plotly.io as pio
 import plotly.express as px
 from django.shortcuts import render
 from bokeh.plotting import figure, show
+
+from .parallel_db import benchmark
 # Create your views here.
 
 repos = allRepos()
@@ -387,7 +389,7 @@ class StudentEnrollments(APIView):
         qs = (
             Student.objects
             .annotate(total_courses=Count("enrollment"))
-            .filter(total_courses__gte=1)
+            .filter(total_courses__gte=0)
             .order_by("-total_courses")
             .values("first_name", "last_name", "total_courses")
         )
@@ -516,3 +518,7 @@ class AvgGradeByCourse(APIView):
     
 
 
+class ParallelBenchmarkAPIView(APIView):
+    def get(self, request):
+        data = benchmark()
+        return Response(data)

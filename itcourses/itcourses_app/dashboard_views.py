@@ -20,7 +20,7 @@ from math import pi
 from bokeh.transform import cumsum, transform, factor_cmap, linear_cmap
 from bokeh.palettes import Category20c, Spectral6, Viridis256, Turbo256
 from bokeh.resources import CDN
-
+from .parallel_db import benchmark
 
 from decimal import Decimal
 # Create your views here.
@@ -147,7 +147,7 @@ class BokehDashboardView(View):
 
         plots = {}
 
-        # =========== 1 =============
+        # =========== 1 ==============
         qs_enrollments = (
             Student.objects
             .annotate(total_courses=Count("enrollment"))
@@ -329,3 +329,30 @@ class BokehDashboardView(View):
         }
         
         return render(request, 'itcourses_ui/dashboard_bokeh.html', context)
+    
+
+
+class ParallelBenchmarkDashboard(View):
+    def get(self, request):
+        data = benchmark()
+        df = pd.DataFrame(data)
+
+        fig = px.line(
+            df,
+            x="threads",
+            y="time_sec",
+            markers=True,
+            title="Execution time vs number of threads",
+            labels={
+                "threads": "Number of threads",
+                "time_sec": "Execution time (sec)"
+            }
+        )
+
+        chart = pio.to_html(fig, full_html=False)
+
+        return render(
+            request,
+            "itcourses_ui/dashboard_benchmark.html",
+            {"chart": chart}
+        )
