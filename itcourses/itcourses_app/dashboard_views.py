@@ -266,7 +266,7 @@ class BokehDashboardView(View):
             'min_grade': min_grade,
             'resources': js_resourses
         }
-        
+         
         return render(request, 'itcourses_ui/dashboard_bokeh.html', context)
     
 
