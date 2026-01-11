@@ -52,6 +52,21 @@ class StudentDetailView(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
+    def patch(self, request, pk):
+        try:
+            student = repos.students.get_by_id(pk)
+
+            serializer = StudentSerializer(student,data=request.data,partial=True)
+
+            if serializer.is_valid():
+                student = repos.students.update(pk, **serializer.validated_data)
+                return Response(StudentSerializer(student).data, status=status.HTTP_200_OK)
+
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
+        
     def delete(self, request, pk):
         student = repos.students.delete(pk)
         if student:
@@ -93,6 +108,21 @@ class TeacherDetailView(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
+    def patch(self, request, pk):
+        try:
+            teacher = repos.teachers.get_by_id(pk)
+
+            serializer = TeacherSerializer(teacher,data=request.data,partial=True)
+
+            if serializer.is_valid():
+                teacher = repos.teachers.update(pk, **serializer.validated_data)
+                return Response(TeacherSerializer(teacher).data, status=status.HTTP_200_OK)
+
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
+
     def delete(self, request, pk):
         teacher = repos.teachers.delete(pk)
         if teacher:
@@ -134,6 +164,21 @@ class CourseDetailView(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
+    def patch(self, request, pk):
+        try:
+            course = repos.courses.get_by_id(pk)
+
+            serializer = CourseSerializer(course,data=request.data,partial=True)
+
+            if serializer.is_valid():
+                course = repos.courses.update(pk, **serializer.validated_data)
+                return Response(CourseSerializer(course).data, status=status.HTTP_200_OK)
+
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
+
     def delete(self, request, pk):
         course = repos.courses.delete(pk)
         if course:
@@ -175,6 +220,21 @@ class ClassroomDetailView(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
+    def patch(self, request, pk):
+        try:
+            classroom = repos.classrooms.get_by_id(pk)
+
+            serializer = ClassroomSerializer(classroom,data=request.data,partial=True)
+
+            if serializer.is_valid():
+                classroom = repos.classrooms.update(pk, **serializer.validated_data)
+                return Response(ClassroomSerializer(classroom).data, status=status.HTTP_200_OK)
+
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
+
     def delete(self, request, pk):
         classroom = repos.classrooms.delete(pk)
         if classroom:
@@ -216,6 +276,21 @@ class EnrollmentDetailView(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
+    def patch(self, request, pk):
+        try:
+            enrollment = repos.enrollments.get_by_id(pk)
+
+            serializer = EnrollmentSerializer(enrollment,data=request.data,partial=True)
+
+            if serializer.is_valid():
+                enrollment = repos.enrollments.update(pk, **serializer.validated_data)
+                return Response(EnrollmentSerializer(enrollment).data, status=status.HTTP_200_OK)
+
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
+
     def delete(self, request, pk):
         enrollment = repos.enrollments.delete(pk)
         if enrollment:
@@ -256,7 +331,22 @@ class ScheduleDetailView(APIView):
             return Response({"error": "Schedule not found"}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        
+    
+    def patch(self, request, pk):
+        try:
+            schedule = repos.schedules.get_by_id(pk)
+
+            serializer = ScheduleSerializer(schedule,data=request.data,partial=True)
+
+            if serializer.is_valid():
+                schedule = repos.schedules.update(pk, **serializer.validated_data)
+                return Response(ScheduleSerializer(schedule).data, status=status.HTTP_200_OK)
+
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
+
     def delete(self, request, pk):
         schedule = repos.schedules.delete(pk)
         if schedule:
@@ -297,7 +387,22 @@ class PaymentDetailView(APIView):
             return Response({"error": "Payment not found"}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        
+
+    def patch(self, request, pk):
+        try:
+            payment = repos.payments.get_by_id(pk)
+
+            serializer = PaymentSerializer(payment,data=request.data,partial=True)
+
+            if serializer.is_valid():
+                payment = repos.payments.update(pk, **serializer.validated_data)
+                return Response(PaymentSerializer(payment).data, status=status.HTTP_200_OK)
+
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
+
     def delete(self, request, pk):
         payment = repos.payments.delete(pk)
         if payment:
@@ -339,32 +444,27 @@ class CertificateDetailView(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
-    def delete(self, request, pk):
-        certificate = repos.certificates.delete(pk)
-        if certificate:
-            return Response({"message": "Certificate deleted"})
-        return Response({"error": "Certificate not found"}, status=status.HTTP_404_NOT_FOUND)
-
-    def get(self, request, pk):
+    def patch(self, request, pk):
         try:
             certificate = repos.certificates.get_by_id(pk)
-            serializer = CertificateSerializer(certificate)
-            return Response(serializer.data)
-        except:
-            return Response({"error": "Certificate not found"}, status=status.HTTP_404_NOT_FOUND)
 
-    def put(self, request, pk):
-        certificate = repos.certificates.update(pk, **request.data)
-        if certificate:
-            serializer = CertificateSerializer(certificate)
-            return Response(serializer.data)
-        return Response({"error": "Certificate not found"}, status=status.HTTP_404_NOT_FOUND)
+            serializer = CertificateSerializer(certificate,data=request.data,partial=True)
+
+            if serializer.is_valid():
+                certificate = repos.certificates.update(pk, **serializer.validated_data)
+                return Response(CertificateSerializer(certificate).data, status=status.HTTP_200_OK)
+
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
 
     def delete(self, request, pk):
         certificate = repos.certificates.delete(pk)
         if certificate:
             return Response({"message": "Certificate deleted"})
         return Response({"error": "Certificate not found"}, status=status.HTTP_404_NOT_FOUND)
+
     
 
 
