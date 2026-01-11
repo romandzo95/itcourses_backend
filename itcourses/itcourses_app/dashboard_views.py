@@ -1,9 +1,5 @@
 from django.shortcuts import render
 from .serializers import *
-from rest_framework.response import Response
-from .allRepos import allRepos
-from rest_framework import status
-from rest_framework.views import APIView
 from django.db.models import Count, Avg, Sum, F
 from django.db.models.functions import ExtractMonth
 from django.views import View
@@ -13,16 +9,16 @@ import plotly.io as pio
 import plotly.express as px
 from django.shortcuts import render
 
-from bokeh.plotting import figure, show
-from bokeh.models import ColumnDataSource, HoverTool, LinearColorMapper
+from bokeh.plotting import figure
+from bokeh.models import ColumnDataSource, HoverTool
 from bokeh.embed import components
 from math import pi
-from bokeh.transform import cumsum, transform, factor_cmap, linear_cmap
-from bokeh.palettes import Category20c, Spectral6, Viridis256, Turbo256
+from bokeh.transform import cumsum, linear_cmap
+from bokeh.palettes import Spectral6, Viridis256, Turbo256
 from bokeh.resources import CDN
 from .parallel_db import benchmark
 
-from decimal import Decimal
+from .queries import *
 # Create your views here.
 
 class PlotlyDashboardView(View):
@@ -31,14 +27,9 @@ class PlotlyDashboardView(View):
         #=========== 1 =============
         min_courses = int(request.GET.get('min_courses', 1))
         
-        qs_enrollments = (
-            Student.objects
-            .annotate(total_courses=Count("enrollment"))
-            .filter(total_courses__gte=min_courses)
-            .order_by("-total_courses")
-            .values("first_name", "last_name", "total_courses")
-        )
-        df_enrollments = pd.DataFrame(list(qs_enrollments))
+        df_enrollments = get_student_enrollments()
+        df_enrollments = df_enrollments[df_enrollments["total_courses"] >= min_courses]
+
 
         if not df_enrollments.empty:
             df_enrollments['full_name'] = df_enrollments['first_name']+' '+df_enrollments['last_name']
@@ -49,15 +40,9 @@ class PlotlyDashboardView(View):
 
         #=========== 2 =============
         min_grade = float(request.GET.get('min_grade', 6.0))
-        qs_grades = (
-            Student.objects
-            .annotate(avg_grade=Avg("certificate__grade"))
-            .filter(avg_grade__gte=min_grade)
-            .order_by("-avg_grade")
-            .values("first_name", "last_name", "avg_grade")
-        )
+        df_grades = get_student_avg_grade()
+        df_grades = df_grades[df_grades["avg_grade"] >= min_grade]
 
-        df_grades = pd.DataFrame(list(qs_grades))
         if not df_grades.empty:
             df_grades['avg_grade'] = df_grades['avg_grade'].astype(float)
             df_grades['full_name'] = df_grades['first_name'] + " " + df_grades['last_name']
@@ -67,13 +52,8 @@ class PlotlyDashboardView(View):
         chart2 = pio.to_html(fig2, full_html=False)
 
         #=========== 3 =============
-        qs_profit = (
-            Course.objects
-            .annotate(total_students=Count("enrollment"))
-            .annotate(total_income=F("total_students") * F("price"))
-            .values("course_name", "total_income")
-        )
-        df_profit = pd.DataFrame(list(qs_profit))
+        df_profit = get_course_profit()[["course_name", "total_income"]]
+
         if not df_profit.empty:
             fig3 = px.pie(df_profit, values='total_income', names='course_name', title="Course profits")
         else:
@@ -81,12 +61,8 @@ class PlotlyDashboardView(View):
         chart3 = pio.to_html(fig3, full_html=False)
 
         #=========== 4 =============
-        qs_classrooms = (
-            Classroom.objects
-            .annotate(lessons_count=Count("schedule"))
-            .values("room_number", "lessons_count")
-        )
-        df_classrooms = pd.DataFrame(list(qs_classrooms))
+        df_classrooms = get_classroom_availability()[["room_number", "lessons_count"]]
+
         if not df_classrooms.empty:
             fig4 = px.bar(df_classrooms, x='lessons_count', y='room_number', orientation='h', title="Classrooms availability")
         else:
@@ -94,12 +70,8 @@ class PlotlyDashboardView(View):
         chart4 = pio.to_html(fig4, full_html=False)
 
         #=========== 5 =============
-        qs_payments = (
-            Payment.objects
-            .values("method")
-            .annotate(total=Count("payment_id"))
-        )
-        df_payments = pd.DataFrame(list(qs_payments))
+        df_payments = get_payments_by_method()
+
         if not df_payments.empty:
             fig5 = px.pie(df_payments, values='total', names='method', hole=0.4, title="Payment methods")
         else:
@@ -107,15 +79,10 @@ class PlotlyDashboardView(View):
         chart5 = pio.to_html(fig5, full_html=False)
 
         #=========== 6 =============
-        qs_income = (
-            Enrollment.objects
-            .annotate(month=ExtractMonth("enrollment_date"), course_price=F("course__price"))
-            .values("month", "course_price")
-        )
-        df_income = pd.DataFrame(list(qs_income))
+        df_income = get_monthly_income()
+
         if not df_income.empty:
-            grouped_income = df_income.groupby("month")["course_price"].sum().reset_index()
-            fig6 = px.line(grouped_income, x='month', y='course_price', markers=True, title="Monthly profit")
+            fig6 = px.line(df_income,x='month', y='monthly_income', markers=True, title="Monthly profit")
         else:
             fig6 = px.line(title="No data")
         chart6 = pio.to_html(fig6, full_html=False)
@@ -148,14 +115,9 @@ class BokehDashboardView(View):
         plots = {}
 
         # =========== 1 ==============
-        qs_enrollments = (
-            Student.objects
-            .annotate(total_courses=Count("enrollment"))
-            .filter(total_courses__gte=min_courses)
-            .order_by("-total_courses")
-            .values("first_name", "last_name", "total_courses")
-        )
-        df1 = pd.DataFrame(list(qs_enrollments))
+        df1 = get_student_enrollments()
+        df1 = df1[df1["total_courses"] >= min_courses]
+
         if not df1.empty:
             df1['full_name'] = df1['first_name'] + ' ' + df1['last_name']
             df1 = df1.drop_duplicates(subset=['full_name'])
@@ -175,14 +137,9 @@ class BokehDashboardView(View):
         
         # =========== 2 =============
 
-        qs_grades = (
-            Student.objects
-            .annotate(avg_grade=Avg("certificate__grade"))
-            .filter(avg_grade__gte=min_grade)
-            .order_by("-avg_grade")
-            .values("first_name", "last_name", "avg_grade")
-        )
-        df2 = pd.DataFrame(list(qs_grades))
+        df2 = get_student_avg_grade()
+        df2 = df2[df2["avg_grade"] >= min_grade]
+
         if not df2.empty:
             df2['avg_grade'] = df2['avg_grade'].astype(float)
             df2['full_name'] = df2['first_name'] + " " + df2['last_name']
@@ -210,13 +167,8 @@ class BokehDashboardView(View):
 
         # =========== 3 =============
 
-        qs_profit = (
-            Course.objects
-            .annotate(total_students=Count("enrollment"))
-            .annotate(total_income=F("total_students") * F("price"))
-            .values("course_name", "total_income")
-        )
-        df3 = pd.DataFrame(list(qs_profit))
+        df3 = get_course_profit()
+
 
         if not df3.empty:
             df3['total_income'] = df3['total_income'].astype(float)
@@ -241,12 +193,8 @@ class BokehDashboardView(View):
 
         # =========== 4 =============
 
-        qs_classrooms = (
-            Classroom.objects
-            .annotate(lessons_count=Count("schedule"))
-            .values("room_number", "lessons_count")
-        )
-        df4 = pd.DataFrame(list(qs_classrooms))
+        df4 = get_classroom_availability()
+
 
         if not df4.empty:
             df4['room_number'] = df4['room_number'].astype(str)
@@ -264,12 +212,8 @@ class BokehDashboardView(View):
 
 
         # =========== 5 =============
-        qs_payments = (
-            Payment.objects
-            .values("method")
-            .annotate(total=Count("payment_id"))
-        )
-        df5 = pd.DataFrame(list(qs_payments))
+        df5 = get_payments_by_method()
+
 
         if not df5.empty:
             df5['total'] = df5['total'].astype(float)
@@ -294,23 +238,18 @@ class BokehDashboardView(View):
 
 
         # =========== 6 =============
-        qs_income = (
-            Enrollment.objects
-            .annotate(month=ExtractMonth("enrollment_date"), course_price=F("course__price"))
-            .values("month", "course_price")
-        )
-        df_income = pd.DataFrame(list(qs_income))
+    
+        df_income = get_monthly_income()
 
         if not df_income.empty:
-            df_income['course_price'] = df_income['course_price'].astype(float)
-            grouped_income = df_income.groupby("month")["course_price"].sum().reset_index()
-            source6 = ColumnDataSource(grouped_income)
+            df_income['monthly_income'] = df_income['monthly_income'].astype(float)
+            source6 = ColumnDataSource(df_income)
 
             p6 = figure(height=400, title="Monthly profit", x_axis_label='Month', y_axis_label='Income',
                        toolbar_location=None, tools="hover", tooltips=[("Month", "@month"), ("Income", "@course_price")])
 
-            p6.line(x='month', y='course_price', source=source6, line_width=3, line_color="green")
-            p6.circle(x='month', y='course_price', source=source6, fill_color="white", size=8, line_color="green")
+            p6.line(x='month', y='monthly_income', source=source6, line_width=3, line_color="green")
+            p6.circle(x='month', y='monthly_income', source=source6, fill_color="white", size=8, line_color="green")
             
             plots['chart6'] = p6
         else:

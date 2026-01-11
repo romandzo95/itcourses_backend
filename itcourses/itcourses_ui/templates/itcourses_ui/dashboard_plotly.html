@@ -3,21 +3,21 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Parallel DB Benchmark</title>
+    <title>Plotly Dashboard</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
         .charts-container {
             display: grid;
-            grid-template-columns: 1fr;
+            grid-template-columns: 1fr 1fr;
             gap: 20px;
             padding: 20px;
         }
 
         .chart-box {
             border: 1px solid #ddd;
-            padding: 15px;
+            padding: 10px;
             border-radius: 8px;
             background: #f9f9f9;
         }
@@ -26,17 +26,29 @@
 
 <body>
 
-    <h1 class="text-center mt-3">Parallel Database Benchmark</h1>
+    <h1 class="text-center mt-3">Plotly Dashboard</h1>
 
-    <p class="text-center text-muted">
-        Порівняння часу виконання паралельних запитів до БД
-        з використанням потоків та процесів
-    </p>
+    <form method="get" style="margin: 20px;">
+        <label class="me-3">
+            Мін. курси:
+            <input type="number" name="min_courses" value="{{ min_courses }}" min="1" max="10">
+        </label>
+
+        <label class="me-3">
+            Мін. бал:
+            <input type="number" step="0.1" name="min_grade" value="{{ min_grade }}">
+        </label>
+
+        <button type="submit" class="btn btn-primary">Оновити</button>
+    </form>
 
     <div class="charts-container">
-        <div class="chart-box">
-            {{ chart | safe }}
-        </div>
+        <div class="chart-box">{{ chart1 | safe }}</div>
+        <div class="chart-box">{{ chart2 | safe }}</div>
+        <div class="chart-box">{{ chart3 | safe }}</div>
+        <div class="chart-box">{{ chart4 | safe }}</div>
+        <div class="chart-box">{{ chart5 | safe }}</div>
+        <div class="chart-box">{{ chart6 | safe }}</div>
     </div>
 
 </body>
