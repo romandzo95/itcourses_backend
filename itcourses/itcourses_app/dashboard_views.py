@@ -268,7 +268,7 @@ class BokehDashboardView(View):
         }
          
         return render(request, 'itcourses_ui/dashboard_bokeh.html', context)
-    
+       
 
 
 class ParallelBenchmarkDashboard(View):
