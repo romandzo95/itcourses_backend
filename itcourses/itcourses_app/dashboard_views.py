@@ -246,7 +246,7 @@ class BokehDashboardView(View):
             source6 = ColumnDataSource(df_income)
 
             p6 = figure(height=400, title="Monthly profit", x_axis_label='Month', y_axis_label='Income',
-                       toolbar_location=None, tools="hover", tooltips=[("Month", "@month"), ("Income", "@course_price")])
+                       toolbar_location=None, tools="hover", tooltips=[("Month", "@month"), ("monthly_income", "@monthly_income")])
 
             p6.line(x='month', y='monthly_income', source=source6, line_width=3, line_color="green")
             p6.circle(x='month', y='monthly_income', source=source6, fill_color="white", size=8, line_color="green")
@@ -266,9 +266,9 @@ class BokehDashboardView(View):
             'min_grade': min_grade,
             'resources': js_resourses
         }
-        
+         
         return render(request, 'itcourses_ui/dashboard_bokeh.html', context)
-    
+       
 
 
 class ParallelBenchmarkDashboard(View):
