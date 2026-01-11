@@ -64,15 +64,9 @@ def external_book_delete(request, pk):
     
 def main_view(request):
     qs = Student.objects.all().values()
-    qs2 = Enrollment.objects.all().values()
     data = pd.DataFrame(qs)
     print(data)
-    data2 = pd.DataFrame(qs2)
-    print(data2)
-
-
     context = {
         'df': data.to_html()
     }
-
     return render(request, "itcourses_ui/main.html", context)

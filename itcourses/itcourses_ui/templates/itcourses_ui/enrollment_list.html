@@ -6,7 +6,7 @@
     {% for e in enrollments %}
     <li>
         <a href="{% url 'enrollment_detail' e.pk %}">
-            {{ e.student.first_name }} {{ e.student.last_name }} - {{ e.course.course_name }}
+            {{ e.student.first_name }} {{ e.student.last_name }} - {{ e.course.course_name }} <a>days</a>
         </a>
     </li>
     {% empty %}

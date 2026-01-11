@@ -11,8 +11,9 @@ from .views import (
     CoursesForTeacher, PaymentbyPayMethods, 
     ClassroomAvailability, CourseProfit,
     CoursePriceStats, MonthlyIncome, AvgGradeByCourse,
+    ParallelBenchmarkAPIView
 )
-from .dashboard_views import PlotlyDashboardView, BokehDashboardView
+from .dashboard_views import PlotlyDashboardView, BokehDashboardView, ParallelBenchmarkDashboard
 from django.urls import path, include
 
 urlpatterns = [
@@ -44,4 +45,6 @@ urlpatterns = [
     path('analytics/course/avg-grade/', AvgGradeByCourse.as_view()),
     path('dashboard/plotly/', PlotlyDashboardView.as_view(), name="dashboard-plotly"),
     path('dashboard/bokeh/', BokehDashboardView.as_view(), name='dashboard-bokeh'),
+    path("benchmark/", ParallelBenchmarkAPIView.as_view()),
+    path("dashboard/benchmark/", ParallelBenchmarkDashboard.as_view()),
 ]

@@ -41,7 +41,7 @@ class Course(models.Model):
         db_table = 'course'
 
     def __str__(self):
-        return f"{self.course_name} {self.description} {self.duration} {self.price}"
+        return f"{self.course_name} {self.description}"
 
 
 class Enrollment(models.Model):
